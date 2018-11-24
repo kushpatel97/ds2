@@ -10,9 +10,11 @@ char *g_column;
 char *g_output;
 
 pthread_t *threads;
-pthread_t *thread_copy;
+// pthread_t *thread_copy;
 
 MovieNode *g_head = NULL;
+
+long p_tid;
 
 /*
 Params: col - A constant string paramater
@@ -213,6 +215,9 @@ void map(Movie *movie_data, char *field, char *column) {
 }
 
 void *thread_function_file(void *_file) {
+  fprintf(stdout, "%u, ",syscall(__NR_gettid) );
+  fflush(stdout);
+
   pthread_mutex_lock(&mutex);
   char *filepath = (char *)_file;
   // fprintf(stdout, "[F]: %s\n", filepath);
@@ -322,6 +327,11 @@ void *thread_function_file(void *_file) {
 
 void *searchDirectory(void *_directory) {
 
+  if(p_tid != syscall(__NR_gettid)){
+    fprintf(stdout, "%u\n",syscall(__NR_gettid) );
+    fflush(stdout);
+  }
+
   char *directory = (char *)_directory;
   struct dirent *sd;
   DIR *dir;
@@ -332,6 +342,8 @@ void *searchDirectory(void *_directory) {
     exit(1);
   }
   while ((sd = readdir(dir)) != NULL) {
+
+    // fprintf(stdout, "%u\n",syscall(__NR_gettid) );
 
     char path[1024];
     snprintf(path, sizeof(path), "%s/%s", directory, sd->d_name);
@@ -347,7 +359,7 @@ void *searchDirectory(void *_directory) {
       // fprintf(stdout, "%lu, ", thread_directory_id);
       // fflush(stdout);
       // fprintf(stdout,"%s\n",path);
-      thread_copy[g_count] = threads[g_count];
+      // thread_copy[g_count] = threads[g_count];
       pthread_create(&threads[g_count], NULL, searchDirectory, path);
       pthread_join(threads[g_count], NULL);
 
@@ -369,7 +381,7 @@ void *searchDirectory(void *_directory) {
       // fprintf(stdout,"%s\n",path);
       if ((strcmp(csv_extension, ".csv") == 0) &&
           !(strstr(sd->d_name, "-sorted-"))) {
-            thread_copy[g_count] = threads[g_count];
+            // thread_copy[g_count] = threads[g_count];
 
         pthread_create(&threads[g_count], NULL, thread_function_file, path);
         pthread_join(threads[g_count], NULL);
@@ -536,18 +548,20 @@ int main(int argc, char **argv) {
   } else {
     // printf("%d\n", dataType);
   }
+  p_tid = syscall(__NR_gettid);
 
-  fprintf(stdout, "Initial PID: %d\n", pthread_self());
-  // fflush(stdout);
+  fprintf(stdout, "Initial PID: %u\n", p_tid);
+  fprintf(stdout, "TIDS's of all spawned threads: \n");
+  fflush(stdout);
   threads = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
-  thread_copy = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
+  // thread_copy = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
 
   searchDirectory(searchDir);
-  int q;
-  for (q = 0; q < g_count; q++) {
-    fprintf(stdout, "%d, ", thread_copy[q]);
-    // pthread_join(threads[q], NULL);
-  }
+  // int q;
+  // for (q = 0; q < g_count; q++) {
+  //   fprintf(stdout, "%d, ", thread_copy[q]);
+  //   // pthread_join(threads[q], NULL);
+  // }
   fprintf(stdout, "\n");
   pthread_mutex_destroy(&mutex);
 

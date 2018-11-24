@@ -13,6 +13,7 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <pthread.h>
+#include <sys/syscall.h>
 /*****
 *
 *	Define structures and function prototypes for your sorter
