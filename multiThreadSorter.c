@@ -446,7 +446,27 @@ void printList(MovieNode *node, char *output_dir) {
 }
 
 int main(int argc, char **argv) {
-  // printf("%s\n", NULL);
+  // printf("%s\n", NULL);]
+
+  // if(argc == 3){
+  //   fprintf(stdout, "%d,%s,%s\n",argc,argv[1],argv[2]);
+  //
+  // }else if(argc==5){
+  //   fprintf(stdout, "%d,%s,%s,%s,%s\n",argc,argv[1],argv[2],argv[3],argv[4]);
+  //
+  // }else{
+  //   fprintf(stdout, "%d,%s,%s,%s,%s,%s,%s\n",argc,argv[1],argv[2],argv[3],argv[4],argv[5],argv[6] );
+  //
+  // }
+  // fprintf(stdout, "%d,%s,%s,%s,%s,%s,%s\n",argc,argv[1],argv[2],argv[3],argv[4],argv[5],argv[6] );
+  g_column = (char*)malloc(strlen(argv[2])+2);
+  g_output = (char*)malloc(1024);
+  // int arg_counter;
+  // for(arg_counter=0;arg_counter<argc;arg_counter++){
+  //   if(strcmp("-c",argv[arg_counter])==0){
+  //
+  //   }
+  // }
 
   char *searchDir;
   if (argc < 3) {
@@ -493,82 +513,155 @@ int main(int argc, char **argv) {
   if (argc == 5) {
     // printf("#Args \t Name\n");
     // printf("%d \t %s\n",argc, argv[4]);
-    g_column = argv[2];
-    if (strcmp(argv[3], "-o") == 0) {
-      if ((strcmp(argv[3], "-o") == 0) && argv[4] != NULL) {
-        searchDir = ".";
-        g_output = argv[4];
-      } else {
-        fprintf(stderr, "%s is not a valid column type. Please use \"-o\".\n",
-                argv[3]);
-        exit(0);
-        return -1;
-      }
-    } else {
-
-      if ((strcmp(argv[3], "-d") == 0) && (argv[4] != NULL)) {
-        // g_column = argv[2];
-        searchDir = argv[4];
-        g_output = ".";
-      } else {
-        fprintf(stderr, "%s is not a valid column type. Please use \"-d\".\n",
-                argv[3]);
-        exit(0);
-        return -1;
-      }
-    }
-  }
-
-  if (argc == 7) {
-    // printf("#Args \t Name\n");
-    // printf("%d \t %s\n",argc, argv[6]);
-
-    if ((strcmp(argv[5], "-o") == 0) && argv[6] != NULL) {
-      g_column = argv[2];
-      searchDir = argv[4];
-      g_output = argv[6];
-    } else {
-      fprintf(stderr, "%s is not a valid column type. Please use \"-o\".\n",
-              argv[5]);
+    if(strcmp(argv[1],"-c")==0 || strcmp(argv[3],"-c")==0){
+      // DO nothing
+      // int dt = getDataType(argv[2])
+    }else{
+      fprintf(stderr, "-c does not exist in the arguments. Please include -c.\n");
       exit(0);
       return -1;
     }
+    if(strcmp(argv[1],"-c")==0 ){
+      if (strcmp(argv[3], "-o") == 0) {
+        if ((strcmp(argv[3], "-o") == 0) && argv[4] != NULL) {
+          searchDir = ".";
+          g_output = argv[4];
+          g_column=argv[2];
+        } else {
+          fprintf(stderr, "%s is not a valid argument. Please use \"-o\".\n",
+                  argv[3]);
+          exit(0);
+          return -1;
+        }
+      } else {
+        if ((strcmp(argv[3], "-d") == 0) && (argv[4] != NULL)) {
+          // g_column = argv[2];
+          searchDir = argv[4];
+          g_output = ".";
+          g_column=argv[2];
+        } else {
+          fprintf(stderr, "%s is not a argument. Please use \"-d\".\n",
+                  argv[3]);
+          exit(0);
+          return -1;
+        }
+      }
+
+    }else if(strcmp(argv[3],"-c")==0){
+      if (strcmp(argv[1], "-o") == 0) {
+        if ((strcmp(argv[1], "-o") == 0) && argv[2] != NULL) {
+          searchDir = ".";
+          g_output = argv[2];
+          g_column=argv[4];
+        } else {
+          fprintf(stderr, "%s is not a valid argument. Please use \"-o\".\n",
+                  argv[3]);
+          exit(0);
+          return -1;
+        }
+      } else {
+        if ((strcmp(argv[1], "-d") == 0) && (argv[1] != NULL)) {
+          // g_column = argv[2];
+          searchDir = argv[2];
+          g_output = ".";
+          g_column=argv[4];
+        } else {
+          fprintf(stderr, "%s is not a argument. Please use \"-d\".\n",
+                  argv[3]);
+          exit(0);
+          return -1;
+        }
+      }
+    }
+    else{
+
+    }
+
   }
 
-  if (pthread_mutex_init(&mutex, NULL) != 0) {
-    fprintf(stderr, "\n mutex init has failed\n");
-    return 1;
+  if (argc == 7) {
+     //-c  movie_title -d thisdir -o thatdir
+    if((strcmp(argv[1], "-c") == 0) && argv[2] != NULL){
+      if ((strcmp(argv[5], "-o") == 0) && argv[6] != NULL) {
+        g_column = argv[2];
+        searchDir = argv[4];
+        g_output = argv[6];
+      }else if((strcmp(argv[5], "-d") == 0) && argv[6] != NULL){
+        g_column = argv[2];
+        searchDir = argv[6];
+        g_output = argv[4];
+      }
+      else {
+        fprintf(stderr, "%s is not a valid column type. Please use \"-o\".\n",
+                argv[5]);
+        exit(0);
+        return -1;
+      }
+    }
+    else if((strcmp(argv[1], "-d") == 0) && argv[2] != NULL){
+      //-d thisdir -o thatdir -c  movie_title
+      if ((strcmp(argv[5], "-c") == 0) && argv[6] != NULL) {
+        g_column = argv[6];
+        searchDir = argv[2];
+        g_output = argv[4];
+      }else if((strcmp(argv[5], "-o") == 0) && argv[6] != NULL){
+        //-d thisdir -c movie_title -o thatdir
+        g_column = argv[4];
+        searchDir = argv[2];
+        g_output = argv[6];
+      }
+      else {
+        fprintf(stderr, "%s is not a valid column type. Please use \"-o\".\n",
+                argv[5]);
+        exit(0);
+        return -1;
+      }
+
+    }
+    else{
+      return -1;
+    }
+
+
+
   }
 
-  int dataType;
-  if ((dataType = getDataType(g_column)) < 0) {
-    fprintf(stderr, "%s is not a valid column in this project.\n", g_column);
-    exit(EXIT_FAILURE);
-    // return -1;
-  } else {
-    // printf("%d\n", dataType);
-  }
-  p_tid = syscall(__NR_gettid);
+  fprintf(stdout, "Column: %s, Output Dir: %s, Search Dir:%s\n",g_column,g_output,searchDir );
 
-  fprintf(stdout, "Initial PID: %u\n", p_tid);
-  fprintf(stdout, "TIDS's of all spawned threads: \n");
-  fflush(stdout);
-  threads = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
-  // thread_copy = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
-
-  searchDirectory(searchDir);
-  // int q;
-  // for (q = 0; q < g_count; q++) {
-  //   fprintf(stdout, "%d, ", thread_copy[q]);
-  //   // pthread_join(threads[q], NULL);
+  // if (pthread_mutex_init(&mutex, NULL) != 0) {
+  //   fprintf(stderr, "\n mutex init has failed\n");
+  //   return 1;
   // }
-  fprintf(stdout, "\n");
-  pthread_mutex_destroy(&mutex);
-
-  g_head = mergeSort(g_head, g_column);
-
-  printList(g_head, g_output);
-
-  fprintf(stdout, "Total Threads: %d\n", g_count);
+  //
+  // int dataType;
+  // if ((dataType = getDataType(g_column)) < 0) {
+  //   fprintf(stderr, "%s is not a valid column in this project.\n", g_column);
+  //   exit(EXIT_FAILURE);
+  //   // return -1;
+  // } else {
+  //   // printf("%d\n", dataType);
+  // }
+  // p_tid = syscall(__NR_gettid);
+  //
+  // fprintf(stdout, "Initial PID: %u\n", p_tid);
+  // fprintf(stdout, "TIDS's of all spawned threads: \n");
+  // fflush(stdout);
+  // threads = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
+  // // thread_copy = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
+  //
+  // searchDirectory(searchDir);
+  // // int q;
+  // // for (q = 0; q < g_count; q++) {
+  // //   fprintf(stdout, "%d, ", thread_copy[q]);
+  // //   // pthread_join(threads[q], NULL);
+  // // }
+  // fprintf(stdout, "\n");
+  // pthread_mutex_destroy(&mutex);
+  //
+  // g_head = mergeSort(g_head, g_column);
+  //
+  // printList(g_head, g_output);
+  //
+  // fprintf(stdout, "Total Threads: %d\n", g_count);
   return 0;
 }
