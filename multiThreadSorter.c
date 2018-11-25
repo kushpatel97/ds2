@@ -309,13 +309,13 @@ void *thread_function_file(void *_file) {
 
           CURRENT_COLUMN++;
         }
-        if(CURRENT_COLUMN != NUMBER_OF_COLUMNS){
-          fprintf(stderr, "BAD CSV FILE: Number of columns does not match the numbe of headers\n");
-          exit(0);
-          return;
-        }else{
+        // if(CURRENT_COLUMN != NUMBER_OF_COLUMNS){
+        //   fprintf(stderr, "BAD CSV FILE: Number of columns does not match the numbe of headers\n");
+        //   exit(0);
+        //   return;
+        // }else{
           push(&g_head, new_movie);
-        }
+        // }
 
         // printNode(new_movie);
         // free(new_movie);
