@@ -8,6 +8,12 @@ pthread_mutex_t mutex;
 int g_count = 0;
 char *g_column;
 char *g_output;
+char* g_column_headers = "color,director_name,num_critic_for_reviews,duration,director_facebook_"
+"likes,actor_3_facebook_likes,actor_2_name,actor_1_facebook_likes,gross,"
+"genres,actor_1_name,movie_title,num_voted_users,cast_total_facebook_"
+"likes,actor_3_name,facenumber_in_poster,plot_keywords,movie_imdb_link,"
+"num_user_for_reviews,language,country,content_rating,budget,title_year,"
+"actor_2_facebook_likes,imdb_score,aspect_ratio,movie_facebook_likes";
 
 pthread_t *threads;
 // pthread_t *thread_copy;
@@ -235,7 +241,7 @@ void *thread_function_file(void *_file) {
   char *file_headers = fgets(h_line, 1024, fptr);
 
   if (file_headers != NULL) {
-    if (strstr(file_headers, g_column) != NULL) {
+    if (strstr(g_column_headers, g_column) != NULL) {
       // fprintf(stdout,"\tFILE HEADERS: %s\n",file_headers);
 
       // COUNT NUMBER OF HEADERS IN FILE
@@ -303,14 +309,20 @@ void *thread_function_file(void *_file) {
 
           CURRENT_COLUMN++;
         }
-        push(&g_head, new_movie);
+        if(CURRENT_COLUMN != NUMBER_OF_COLUMNS){
+          fprintf(stderr, "BAD CSV FILE: Number of columns does not match the numbe of headers\n");
+          exit(0);
+          return;
+        }else{
+          push(&g_head, new_movie);
+        }
 
         // printNode(new_movie);
         // free(new_movie);
       }
       // fprintf(stdout,"NUMBER OF COLUMNS: %d\n",NUMBER_OF_COLUMNS);
     } else {
-      fprintf(stderr, "[INVALID HEADERS]: %s does not exist in %s.\n", g_column,
+      fprintf(stderr, "[INVALID HEADERS]: %s does not exist in the global headers for %s.\n", g_column,
               filepath);
     }
   } else {
@@ -349,7 +361,7 @@ void *searchDirectory(void *_directory) {
     snprintf(path, sizeof(path), "%s/%s", directory, sd->d_name);
     // fprintf(stdout,"%s\n",path);
 
-    if (strcmp(sd->d_name, ".") == 0 || strcmp(sd->d_name, "..") == 0) {
+    if (strcmp(sd->d_name, ".git") == 0|| strcmp(sd->d_name, ".") == 0 || strcmp(sd->d_name, "..") == 0) {
       continue;
     }
     if (sd->d_type == DT_DIR) {
@@ -628,40 +640,40 @@ int main(int argc, char **argv) {
 
   fprintf(stdout, "Column: %s, Output Dir: %s, Search Dir:%s\n",g_column,g_output,searchDir );
 
-  // if (pthread_mutex_init(&mutex, NULL) != 0) {
-  //   fprintf(stderr, "\n mutex init has failed\n");
-  //   return 1;
+  if (pthread_mutex_init(&mutex, NULL) != 0) {
+    fprintf(stderr, "\n mutex init has failed\n");
+    return 1;
+  }
+
+  int dataType;
+  if ((dataType = getDataType(g_column)) < 0) {
+    fprintf(stderr, "%s is not a valid column in this project.\n", g_column);
+    exit(EXIT_FAILURE);
+    // return -1;
+  } else {
+    // printf("%d\n", dataType);
+  }
+  p_tid = syscall(__NR_gettid);
+
+  fprintf(stdout, "Initial PID: %u\n", p_tid);
+  fprintf(stdout, "TIDS's of all spawned threads: \n");
+  fflush(stdout);
+  threads = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
+  // thread_copy = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
+
+  searchDirectory(searchDir);
+  // int q;
+  // for (q = 0; q < g_count; q++) {
+  //   fprintf(stdout, "%d, ", thread_copy[q]);
+  //   // pthread_join(threads[q], NULL);
   // }
-  //
-  // int dataType;
-  // if ((dataType = getDataType(g_column)) < 0) {
-  //   fprintf(stderr, "%s is not a valid column in this project.\n", g_column);
-  //   exit(EXIT_FAILURE);
-  //   // return -1;
-  // } else {
-  //   // printf("%d\n", dataType);
-  // }
-  // p_tid = syscall(__NR_gettid);
-  //
-  // fprintf(stdout, "Initial PID: %u\n", p_tid);
-  // fprintf(stdout, "TIDS's of all spawned threads: \n");
-  // fflush(stdout);
-  // threads = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
-  // // thread_copy = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
-  //
-  // searchDirectory(searchDir);
-  // // int q;
-  // // for (q = 0; q < g_count; q++) {
-  // //   fprintf(stdout, "%d, ", thread_copy[q]);
-  // //   // pthread_join(threads[q], NULL);
-  // // }
-  // fprintf(stdout, "\n");
-  // pthread_mutex_destroy(&mutex);
-  //
-  // g_head = mergeSort(g_head, g_column);
-  //
-  // printList(g_head, g_output);
-  //
-  // fprintf(stdout, "Total Threads: %d\n", g_count);
+  fprintf(stdout, "\n");
+  pthread_mutex_destroy(&mutex);
+
+  g_head = mergeSort(g_head, g_column);
+
+  printList(g_head, g_output);
+
+  fprintf(stdout, "Total Threads: %d\n", g_count);
   return 0;
 }
