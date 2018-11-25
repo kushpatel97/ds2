@@ -658,7 +658,7 @@ int main(int argc, char **argv) {
   fprintf(stdout, "Initial PID: %u\n", p_tid);
   fprintf(stdout, "TIDS's of all spawned threads: \n");
   fflush(stdout);
-  threads = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
+  threads = (pthread_t *)malloc(sizeof(pthread_t) * 2048);
   // thread_copy = (pthread_t *)malloc(sizeof(pthread_t) * 1024);
 
   searchDirectory(searchDir);
