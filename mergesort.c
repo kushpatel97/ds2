@@ -27,8 +27,8 @@ MovieNode *merge(MovieNode *first, MovieNode *second, char *column_to_sort)
         return first;
     }
 
-    char *data1 = (char *)malloc(256);
-    char *data2 = (char *)malloc(256);
+    char *data1 = (char *)malloc(128);
+    char *data2 = (char *)malloc(128);
 
     if (strcmp(column_to_sort, "color") == 0)
     {

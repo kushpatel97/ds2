@@ -318,7 +318,7 @@ void *thread_function_file(void *_file) {
         // }
 
         // printNode(new_movie);
-        // free(new_movie);
+        free(new_movie);
       }
       // fprintf(stdout,"NUMBER OF COLUMNS: %d\n",NUMBER_OF_COLUMNS);
     } else {
@@ -638,7 +638,7 @@ int main(int argc, char **argv) {
 
   }
 
-  fprintf(stdout, "Column: %s, Output Dir: %s, Search Dir:%s\n",g_column,g_output,searchDir );
+  // fprintf(stdout, "Column: %s, Output Dir: %s, Search Dir:%s\n",g_column,g_output,searchDir );
 
   if (pthread_mutex_init(&mutex, NULL) != 0) {
     fprintf(stderr, "\n mutex init has failed\n");
@@ -669,11 +669,13 @@ int main(int argc, char **argv) {
   // }
   fprintf(stdout, "\n");
   pthread_mutex_destroy(&mutex);
+  // fprintf(stdout, "Total Threads: %d\n", g_count);
 
   g_head = mergeSort(g_head, g_column);
 
   printList(g_head, g_output);
-
   fprintf(stdout, "Total Threads: %d\n", g_count);
+
+
   return 0;
 }
